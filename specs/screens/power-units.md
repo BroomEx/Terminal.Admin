@@ -1,9 +1,12 @@
-#### A. Search & Filter Bar
+# Screen Power units
+- Component: [Panel.md](components/panel.md)
+
+## A. Search & Filter Bar
 Located at the top left of the panel.
 * **Input Field:** Contains a magnifying glass icon on the left.
 * **Placeholder Text:** "Search..."
 
-#### B. Data Grid (Table)
+## B. Data Grid (Table)
 A table with 5 columns. Rows act as individual records for machinery.
 
 **Column Headers:**

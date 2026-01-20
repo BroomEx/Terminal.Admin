@@ -171,19 +171,22 @@ body.sidebar-expanded .main-content {
 }
 
 /* Header */
-.top-header {
-    height: 70px;
-    background-color: $pale-azure; 
+.header {
+    background-color: $pure-white;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); // Optional: consistency with panel
 }
 
 .page-title {
     font-size: 1.5rem;
     font-weight: 600;
     color: $charcoal;
+    margin: 0; // Remove default margin
 }
 
 .user-profile {
@@ -197,13 +200,25 @@ body.sidebar-expanded .main-content {
     color: #666;
 }
 
-/* Content Panel */
-.content-panel {
+/* Screen Content Wrapper */
+.screen-content {
+    display: flex;
+    flex-direction: column;
+    // Padding removed to align with header margin
+}
+
+/* Panel Component */
+.panel {
     background-color: $pure-white;
     border-radius: 8px;
-    margin: 0 40px 40px 40px;
-    padding: 25px;
+    margin: 10px; /* Spec: Margin 10px */
+    padding: 10px; /* Spec: Padding 10px */
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    // flex-grow: 1; // Removed default grow, let layout decide
+}
+
+/* Helper to make panels fill available space if needed */
+.panel-fill {
     flex-grow: 1;
 }
 

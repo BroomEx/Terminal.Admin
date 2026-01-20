@@ -34,7 +34,7 @@ A vertical rail containing navigation elements.
 ---
 
 ### 2. Top Header Bar
-A horizontal bar spanning the width of the screen, to the right of the sidebar.
+- Component: [header.md](components/header.md)
 
 * **Left Side:** Text label reading **"Power units"**.
 * **Right Side:** User profile avatar (Generic silhouette in a rounded square).

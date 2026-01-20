@@ -1,42 +1,7 @@
-Here is the aggregation_blocks.md file based on the previous description.
+# Screen Aggregation block
+## Panel A: Status & Configuration (Top)
+- Component: [Panel.md](components/panel.md)
 
-Markdown
-
-# Screen Description: Aggregation Blocks
-
-### 1. Left Sidebar Navigation
-A vertical rail containing navigation elements.
-
-* **Top Area:** [Excluded]
-* **Primary Navigation Icons (Top to Bottom):**
-    1.  **Lightning Bolt:** Inside a square container.
-    2.  **Speedometer/Gauge:** (Currently active/selected) Circular dial style.
-    3.  **Rosette/Award Badge:** Ribbon shape.
-    4.  **Computer Monitor:** Desktop screen shape.
-    5.  **Electrical Plug:** Two-prong plug shape.
-    6.  **Calculator:** Standard calculator representation.
-    7.  **Line Graph:** Pulse/heartbeat style line.
-    8.  **Bug:** Insect/beetle shape.
-    9.  **Calendar:** Square with a top binder bar.
-* **Secondary Action Icons (Bottom):**
-    1.  **Action Button 1:** Square containing a quotation mark or comma symbol.
-    2.  **Action Button 2:** Identical to the above.
-    3.  **Settings:** Gear/cogwheel icon.
-
----
-
-### 2. Top Header Bar
-A horizontal bar spanning the width of the screen.
-
-* **Left Side:** Text label reading **"Aggregation blocks"**.
-* **Right Side:** User profile avatar.
-
----
-
-### 3. Main Content Area
-The central workspace is divided into two distinct panels arranged vertically.
-
-#### Panel A: Status & Configuration (Top)
 A data grid displaying operational parameters for two distinct blocks.
 
 * **Action Button:** "Operation plan update" (Top left of panel).
@@ -59,9 +24,11 @@ A data grid displaying operational parameters for two distinct blocks.
 | **Offer mFRR- [MW]** | 0 | 0 |
 | **Activated power DA/SA [MW]** | 0 / 0 | 0 / 0 |
 | **Offer mFRR5 [MW]** | 0 | Not supported |
-| **Activated power mFRR5** | 0 | *(Merged with above)* |
+| **Activated power mFRR5** | 0 | 0 |
 
-#### Panel B: Manual Overrides Log (Bottom)
+## Panel B: Manual Overrides Log (Bottom)
+- Component: [Panel.md](components/panel.md)
+
 A log table tracking user actions and system updates.
 
 * **Header Title:** "Manual overrides log".

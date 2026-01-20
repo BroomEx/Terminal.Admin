@@ -1,7 +1,6 @@
 # Component: Header
 - Background color: Pure white
-- Rounded corner
-- Margin 10px
+- 100% width
 - Padding 10px
 
 ## Content

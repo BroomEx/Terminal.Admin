@@ -40,5 +40,3 @@ Colors used for interactive controls and dividers.
 | **Pagination Blue** | `#D6EAF8` | Light blue tint | Hover states or background for pagination controls. |
 
 ---
-
-*Note: Hex codes are approximations derived from the visual screenshots.*

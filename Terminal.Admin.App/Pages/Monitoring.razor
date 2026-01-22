@@ -1,0 +1,87 @@
+@page "/monitoring"
+
+<PageTitle>Monitoring</PageTitle>
+
+<div class="monitoring-dashboard">
+    
+    @* 1. Context Navigation (Tabs) *@
+    <div class="panel-container mb-2">
+        <ul class="nav nav-pills custom-tabs">
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == "TEDOM AB1" ? "active" : "")" @onclick="@(() => activeTab = "TEDOM AB1")">TEDOM AB1</button>
+            </li>
+            <li class="nav-item">
+                 <button class="nav-link @(activeTab == "TEDOM AB2" ? "active" : "")" @onclick="@(() => activeTab = "TEDOM AB2")">TEDOM AB2</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="scrolling-content">
+        @* Panel A: Aggregation blok power overview *@
+        <MonitoringChartPanel Title="Aggregation blok power overview" LegendItems="@(new[] {
+            "Real power", "PDG trend", "pVS", "Calculated power",
+            "Praha KJ 1 CAT 1100 v.č. 1097", "Praha KJ 2 CAT 1100 v.č. 955",
+            "DG Nehvizdy 1", "DG Nehvizdy 2", "EK Avia"
+        })" />
+
+        @* Panel B: MfrrDaPos *@
+        <MonitoringChartPanel Title="MfrrDaPos" LegendItems="@(new[] {
+            "Offer", "Activation", "Reported", "Required power", "Upper limit", "Lower limit"
+        })" />
+
+        @* Panel C: MfrrSaPos *@
+        <MonitoringChartPanel Title="MfrrSaPos" LegendItems="@(new[] {
+            "Offer", "Activation", "Reported", "Required power", "Upper limit", "Lower limit"
+        })" />
+
+        @* Panel D: MfrrDaNeg *@
+        <MonitoringChartPanel Title="MfrrDaNeg" LegendItems="@(new[] {
+            "Offer", "Activation", "Reported", "Required power", "Upper limit", "Lower limit"
+        })" />
+
+        @* Panel E: MfrrSaNeg *@
+        <MonitoringChartPanel Title="MfrrSaNeg" LegendItems="@(new[] {
+            "Offer", "Activation", "Reported", "Required power", "Upper limit", "Lower limit"
+        })" />
+
+        @* Panel F: Afrr *@
+        <MonitoringChartPanel Title="Afrr" LegendItems="@(new[] {
+            "Offer", "Activation", "Reported", "Required power", "Upper limit", "Lower limit"
+        })" />
+    </div>
+</div>
+
+@code {
+    private string activeTab = "TEDOM AB1";
+}
+
+<style>
+    .monitoring-dashboard {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .scrolling-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    /* Custom Tabs Styling */
+    .custom-tabs .nav-link {
+        color: var(--color-slate-grey);
+        background: none;
+        border: none;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+    }
+
+    .custom-tabs .nav-link.active {
+        color: var(--color-deep-cerulean);
+        background: none;
+        border-bottom: 3px solid var(--color-deep-cerulean);
+    }
+</style>

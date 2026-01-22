@@ -1,0 +1,79 @@
+.nav-scrollable {
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.2rem;
+}
+
+.nav-item ::deep a {
+    color: var(--color-pure-white);
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.nav-item ::deep a:hover {
+    background-color: rgba(255,255,255,0.1);
+    opacity: 1;
+}
+
+.nav-item ::deep a.active {
+    background-color: var(--color-bright-cyan);
+    color: var(--color-pure-white);
+    opacity: 1;
+    font-weight: 600;
+}
+
+.bi {
+    font-size: 1.2rem;
+}
+
+/* Action Buttons */
+.btn-action {
+    background-color: var(--color-action-pink);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-action:hover {
+    background-color: #e03e60; /* Slightly darker */
+    color: white;
+}
+
+.btn-settings {
+    background-color: transparent;
+    color: var(--color-pure-white);
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-settings:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+@media (min-width: 641px) {
+    .collapse {
+        display: block !important;
+    }
+}

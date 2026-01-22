@@ -1,0 +1,183 @@
+@import '_content/Blazor.Bootstrap/Blazor.Bootstrap.olwso25aue.bundle.scp.css';
+
+/* /Shared/Header.razor.rz.scp.css */
+.app-header[b-16hj5va0y1] {
+    position: fixed;
+    top: 0;
+    right: 0; /* Aligned to right, left offset handled by layout/sidebar */
+    left: 250px; /* Assuming sidebar width, will be adjusted in MainLayout */
+    height: 60px; /* typical header height */
+    background-color: var(--color-pure-white);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    width: calc(100% - 250px);
+}
+
+.page-title[b-16hj5va0y1] {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-charcoal);
+    margin: 0;
+}
+
+.header-right[b-16hj5va0y1] {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-placeholder[b-16hj5va0y1] {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-deep-cerulean);
+    color: white;
+    border-radius: 8px; /* Rounded square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 641px) {
+    .app-header[b-16hj5va0y1] {
+        left: 0;
+        width: 100%;
+    }
+}
+/* /Shared/MainLayout.razor.rz.scp.css */
+.page[b-nls30kqf7f] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main[b-nls30kqf7f] {
+    flex: 1;
+    background-color: var(--color-pale-azure);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar[b-nls30kqf7f] {
+    background-color: var(--color-deep-cerulean);
+}
+
+.content-container[b-nls30kqf7f] {
+    padding-top: 80px; /* Header height + spacing */
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    flex: 1; /* Grow to fill space */
+}
+
+.content[b-nls30kqf7f] {
+    background-color: var(--color-pure-white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    /* min-height removed, flex handles it */
+    height: 100%; 
+}
+
+@media (min-width: 641px) {
+    .page[b-nls30kqf7f] {
+        flex-direction: row;
+    }
+
+    .sidebar[b-nls30kqf7f] {
+        width: 250px;
+        height: 100vh;
+        position: fixed; /* Fixed sidebar */
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+    }
+
+    main[b-nls30kqf7f] {
+        margin-left: 250px; /* Push content right */
+    }
+}
+/* /Shared/NavMenu.razor.rz.scp.css */
+.nav-scrollable[b-07mxhns5a7] {
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-item[b-07mxhns5a7] {
+    font-size: 0.9rem;
+    padding-bottom: 0.2rem;
+}
+
+.nav-item[b-07mxhns5a7]  a {
+    color: var(--color-pure-white);
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.nav-item[b-07mxhns5a7]  a:hover {
+    background-color: rgba(255,255,255,0.1);
+    opacity: 1;
+}
+
+.nav-item[b-07mxhns5a7]  a.active {
+    background-color: var(--color-bright-cyan);
+    color: var(--color-pure-white);
+    opacity: 1;
+    font-weight: 600;
+}
+
+.bi[b-07mxhns5a7] {
+    font-size: 1.2rem;
+}
+
+/* Action Buttons */
+.btn-action[b-07mxhns5a7] {
+    background-color: var(--color-action-pink);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-action:hover[b-07mxhns5a7] {
+    background-color: #e03e60; /* Slightly darker */
+    color: white;
+}
+
+.btn-settings[b-07mxhns5a7] {
+    background-color: transparent;
+    color: var(--color-pure-white);
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-settings:hover[b-07mxhns5a7] {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+@media (min-width: 641px) {
+    .collapse[b-07mxhns5a7] {
+        display: block !important;
+    }
+}

@@ -38,5 +38,8 @@ Colors used for interactive controls and dividers.
 | **Active Check** | `#5D6D7E` | Dark blue-grey | Filled/Checked checkbox state. |
 | **Divider Line** | `#E0E0E0` | Light grey (Dashed) | Horizontal separators between table rows. |
 | **Pagination Blue** | `#D6EAF8` | Light blue tint | Hover states or background for pagination controls. |
+| **Disabled State** | `#E5E8E8` | Light grey background | Inactive buttons ("Start test"). |
 
 ---
+
+*Note: Hex codes are approximations derived from the visual screenshots.*

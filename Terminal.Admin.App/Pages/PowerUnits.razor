@@ -1,0 +1,101 @@
+@page "/power-units"
+@using Terminal.Admin.App.Data
+
+<PageTitle>Power Units</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" class="form-control search-input" placeholder="Search..." @bind="searchText" @bind:event="oninput" />
+    </div>
+</div>
+
+<Grid TItem="PowerUnit"
+      Class="table table-hover table-bordered"
+      DataProvider="PowerUnitsDataProvider"
+      AllowSorting="true"
+      Responsive="true">
+
+    <GridColumn TItem="PowerUnit" HeaderText="POWER UNIT" PropertyName="Name" SortKeySelector="item => item.Name">
+        @context.Name
+    </GridColumn>
+
+    <GridColumn TItem="PowerUnit" HeaderText="STATE" PropertyName="State">
+        <span class="badge @GetStateBadgeClass(context.State)">@context.State</span>
+    </GridColumn>
+
+    <GridColumn TItem="PowerUnit" HeaderText="POWER" PropertyName="Power" SortKeySelector="item => item.Power">
+        @context.Power kW
+    </GridColumn>
+
+    <GridColumn TItem="PowerUnit" HeaderText="TEDOM AB1" PropertyName="TedomAB1">
+        @context.TedomAB1
+    </GridColumn>
+
+    <GridColumn TItem="PowerUnit" HeaderText="TEDOM AB2" PropertyName="TedomAB2">
+        @context.TedomAB2
+    </GridColumn>
+
+</Grid>
+
+<style>
+    .search-wrapper {
+        position: relative;
+        max-width: 300px;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-slate-grey);
+    }
+    
+    .search-input {
+        padding-left: 35px;
+        border-color: var(--color-input-border);
+    }
+</style>
+
+@code {
+    private List<PowerUnit> powerUnits = new List<PowerUnit>();
+    private string searchText = "";
+
+    protected override void OnInitialized()
+    {
+        // Mock Data
+        powerUnits = new List<PowerUnit>
+        {
+            new PowerUnit { Id = 1, Name = "PU-101", State = "Running", Power = 450.5, TedomAB1 = "Connected", TedomAB2 = "Standby" },
+            new PowerUnit { Id = 2, Name = "PU-102", State = "Stopped", Power = 0, TedomAB1 = "Disconnected", TedomAB2 = "Disconnected" },
+            new PowerUnit { Id = 3, Name = "PU-103", State = "Warning", Power = 320.0, TedomAB1 = "Connected", TedomAB2 = "Error" },
+            new PowerUnit { Id = 4, Name = "PU-104", State = "Running", Power = 455.2, TedomAB1 = "Connected", TedomAB2 = "Connected" },
+            new PowerUnit { Id = 5, Name = "PU-105", State = "Maintenance", Power = 0, TedomAB1 = "Offline", TedomAB2 = "Offline" },
+        };
+    }
+
+    private async Task<GridDataProviderResult<PowerUnit>> PowerUnitsDataProvider(GridDataProviderRequest<PowerUnit> request)
+    {
+        var filteredData = powerUnits;
+
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredData = filteredData.Where(x => x.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        return await Task.FromResult(request.ApplyTo(filteredData));
+    }
+
+    private string GetStateBadgeClass(string state)
+    {
+        return state switch
+        {
+            "Running" => "bg-success",
+            "Stopped" => "bg-secondary",
+            "Warning" => "bg-warning text-dark",
+            "Maintenance" => "bg-info text-dark",
+            _ => "bg-light text-dark"
+        };
+    }
+}

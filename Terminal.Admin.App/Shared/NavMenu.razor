@@ -1,0 +1,79 @@
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column h-100 d-flex">
+        
+        @* Primary Navigation *@
+        <div class="nav-group">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="power-units" Match="NavLinkMatch.All">
+                    <i class="bi bi-lightning-fill me-3"></i> Power units
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="aggregation-blocks">
+                    <i class="bi bi-speedometer2 me-3"></i> Aggregation blocks
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="certification">
+                    <i class="bi bi-award me-3"></i> Certification
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="monitoring">
+                    <i class="bi bi-pc-display me-3"></i> Monitoring
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="ceps-dashboard">
+                    <i class="bi bi-plug me-3"></i> ČEPS dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="files-dashboard">
+                    <i class="bi bi-calculator me-3"></i> Files dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="logs">
+                    <i class="bi bi-activity me-3"></i> Application logs
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="evs-dashboard">
+                    <i class="bi bi-bug me-3"></i> EVS dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="operation-plan">
+                    <i class="bi bi-calendar me-3"></i> Operation plan
+                </NavLink>
+            </div>
+        </div>
+
+        @* Secondary/Bottom Actions *@
+        <div class="nav-group mt-auto mb-3">
+             <div class="d-flex px-3 gap-2">
+                <button class="btn btn-action">
+                    <i class="bi bi-quote"></i>
+                </button>
+                <button class="btn btn-action">
+                    <i class="bi bi-quote"></i>
+                </button>
+                <NavLink class="btn btn-settings ms-auto" href="settings">
+                    <i class="bi bi-gear-fill"></i>
+                </NavLink>
+            </div>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

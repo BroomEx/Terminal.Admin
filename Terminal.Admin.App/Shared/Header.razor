@@ -1,0 +1,70 @@
+@using Terminal.Admin.App.Shared
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<header class="app-header">
+    <div class="header-left">
+        <h1 class="page-title">@pageTitle</h1>
+    </div>
+    <div class="header-right">
+        <div class="user-profile">
+            <LoginDisplay />
+            <div class="avatar-placeholder">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+@code {
+    private string pageTitle = "Power units";
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+        UpdateTitle();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateTitle();
+        StateHasChanged();
+    }
+
+    private void UpdateTitle()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        // Remove query strings if any
+        if (relativePath.Contains("?"))
+        {
+            relativePath = relativePath.Split('?')[0];
+        }
+        
+        // Remove trailing slash
+        relativePath = relativePath.TrimEnd('/');
+
+        pageTitle = relativePath.ToLowerInvariant() switch
+        {
+            "" => "Home",
+            "power-units" => "Power units",
+            "aggregation-blocks" => "Aggregation blocks",
+            "certification" => "Certification",
+            "monitoring" => "Monitoring",
+            "ceps-dashboard" => "ČEPS dashboard",
+            "files-dashboard" => "Files dashboard",
+            "logs" => "Application logs",
+            "evs-dashboard" => "EVS dashboard",
+            "operation-plan" => "Operation plan",
+            "settings" => "Settings",
+            "counter" => "Counter",
+            "fetchdata" => "Fetch Data",
+            _ => "Terminal Admin" 
+        };
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

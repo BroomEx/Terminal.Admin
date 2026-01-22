@@ -1,0 +1,284 @@
+@using BlazorBootstrap
+@implements IDisposable
+
+<div class="panel-card mb-3">
+    <div class="panel-header mb-2">
+        <h6 class="panel-title">@Title</h6>
+    </div>
+    <div class="panel-body">
+        <div class="chart-container">            
+            @* The Chart / Legend Split *@
+            <div class="d-flex chart-legend-split">
+                <div class="chart-canvas-area flex-grow-1 position-relative" style="min-width: 0;">
+                    <LineChart @ref="lineChart" 
+                               Height="400"
+                               HeightUnit="Unit.Px" />
+                </div>
+                
+                @* Legend (Custom or built-in, keeping custom for layout match) *@
+               @*  <div class="legend-pane ms-3">
+                    <div class="legend-header mb-2">LEGEND</div>
+                    <ul class="legend-list">
+                        @foreach (var item in LegendItems)
+                        {
+                            <li>
+                                <span class="legend-color" style="background-color: @GetColor(item)"></span>
+                                <span class="legend-text">@item</span>
+                            </li>
+                        }
+                    </ul>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reuse styles from Monitoring.razor or ensure they are global. 
+       For component isolation, defining specific styles here or relying on global CSS is fine. 
+       Assuming global theme.css or site.css handles basics, but specific panel styles were in Monitoring.razor.
+       I will duplicate critical styles here to ensure self-containment or assume they are moved to site.css.
+       For now, I'll rely on the parent page's styles or add scoped styles if supported.
+    */
+    .panel-card {
+        background-color: var(--color-pure-white);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        border: 1px solid var(--color-divider-line);
+    }
+
+    .panel-title {
+        font-weight: 600;
+        color: var(--color-charcoal);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .chart-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .timeline-control {
+        height: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .slider-track {
+        height: 4px;
+        background-color: var(--color-input-border);
+        width: 100%;
+        position: relative;
+        border-radius: 2px;
+    }
+
+    .slider-handle {
+        width: 12px;
+        height: 12px;
+        background-color: var(--color-deep-cerulean);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 30%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    }
+
+    .legend-pane {
+        width: 220px;
+        flex-shrink: 0;
+    }
+
+    .legend-header {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--color-slate-grey);
+        letter-spacing: 1px;
+    }
+
+    .legend-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .legend-list li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+        font-size: 0.8rem;
+        color: var(--color-charcoal);
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 4px;
+        border-radius: 2px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 992px) {
+        .chart-legend-split {
+            flex-direction: column;
+        }
+        .legend-pane {
+            width: 100%;
+            margin-left: 0 !important;
+            margin-top: 15px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Chart";
+    [Parameter] public string[] LegendItems { get; set; } = Array.Empty<string>();
+
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+    private System.Threading.Timer? timer;
+    private Random random = new Random();
+
+    private string[] colors = new[] { "#007CA5", "#FF476E", "#00C2E0", "#2ECC71", "#F1C40F", "#9B59B6", "#E67E22", "#34495E", "#95A5A6" };
+
+    private Dictionary<string, double> lastValues = new();
+
+    protected override void OnInitialized()
+    {
+        lineChartOptions = new LineChartOptions
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            Interaction = new Interaction { Mode = InteractionMode.Index },
+            // Plugins configuration commented out due to type resolution issues
+            /*
+            Plugins = new ChartPlugins
+            {
+                Legend = new ChartLegend { Display = false },
+                Title = new ChartTitle { Display = false }
+            },
+            */
+            Scales = new Scales
+            {
+                X = new ChartAxes { Title = new ChartAxesTitle { Text = "Time", Display = false } },
+                Y = new ChartAxes { Title = new ChartAxesTitle { Text = "Power [MW]", Display = true } }
+            }
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            chartData = await GenerateChartData();
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+            
+            // Start timer for updates
+            timer = new System.Threading.Timer(async _ => await UpdateChart(), null, 100000, 100000);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task UpdateChart()
+    {
+        if (chartData == null || chartData.Datasets == null || !chartData.Datasets.Any()) return;
+
+        // Add new label and remove first one
+        chartData.Labels?.Add(DateTime.Now.ToString("HH:mm:ss"));
+        if (chartData.Labels?.Count > 20) 
+        {
+            chartData.Labels.RemoveAt(0);
+        }
+
+        // Update datasets: Add new value and remove first one
+        foreach (var dataset in chartData.Datasets)
+        {
+            if (dataset is LineChartDataset lineDataset && lineDataset.Data != null)
+            {
+                var label = lineDataset.Label;
+                var lastVal = lastValues.ContainsKey(label) ? lastValues[label] : 50.0;
+                
+                // Random walk: change by -5 to +5
+                var change = (random.NextDouble() - 0.5) * 10;
+                var newVal = Math.Clamp(lastVal + change, 10, 200); // Keep within reasonable MW range
+                
+                lastValues[label] = newVal;
+                
+                lineDataset.Data.Add(newVal);
+                if (lineDataset.Data.Count > 20)
+                {
+                    lineDataset.Data.RemoveAt(0);
+                }
+            }
+        }
+
+        await InvokeAsync(async () => 
+        {
+            await lineChart.UpdateAsync(chartData, lineChartOptions);
+        });
+    }
+
+    private async Task<ChartData> GenerateChartData()
+    {
+        var labels = new List<string>();
+        for (int i = 0; i < 20; i++)
+        {
+            labels.Add(DateTime.Now.AddSeconds(-20 + i).ToString("HH:mm:ss"));
+        }
+
+        var datasets = new List<IChartDataset>();
+
+        int colorIndex = 0;
+        foreach (var item in LegendItems)
+        {
+            var color = GetColor(item, colorIndex++);
+            var data = GenerateRandomWalkData(labels.Count, item);
+            
+            var dataset = new LineChartDataset
+            {
+                Label = item,
+                Data = data,
+                BackgroundColor = color,
+                BorderColor = color,
+                BorderWidth = 2,
+                PointRadius = new List<double> { 0 },
+                Tension = 0.4
+            };
+            datasets.Add(dataset);
+        }
+
+        return new ChartData { Labels = labels, Datasets = datasets };
+    }
+
+    private List<double?> GenerateRandomWalkData(int count, string label)
+    {
+        var data = new List<double?>();
+        double current = random.Next(40, 150); // Start somewhere reasonable
+        
+        for (int i = 0; i < count; i++)
+        {
+            data.Add(current);
+            // Random walk step
+            current += (random.NextDouble() - 0.5) * 10;
+            current = Math.Clamp(current, 10, 200);
+        }
+        
+        lastValues[label] = current;
+        return data;
+    }
+
+    private string GetColor(string item, int index = -1)
+    {
+        if (index >= 0 && index < colors.Length) return colors[index];
+        return colors[Math.Abs(item.GetHashCode()) % colors.Length];
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

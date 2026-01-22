@@ -1,0 +1,170 @@
+@page "/aggregation-blocks"
+@using Terminal.Admin.App.Data
+
+<PageTitle>Aggregation Blocks</PageTitle>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                     <button class="btn btn-primary">Operation plan update</button>
+                </div>
+                
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Parameter</th>
+                            <th style="width: 30%;">TEDOM AB1</th>
+                            <th style="width: 30%;">TEDOM AB2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Remote control</td>
+                            <td><Switch @bind-Value="ab1Remote" /></td>
+                            <td><Switch @bind-Value="ab2Remote" /></td>
+                        </tr>
+                         <tr>
+                            <td>External source for operation plans</td>
+                            <td><Switch @bind-Value="ab1External" Disabled="true" /></td>
+                            <td><Switch @bind-Value="ab2External" /></td>
+                        </tr>
+                         <tr>
+                            <td>AB switch</td>
+                            <td><input type="checkbox" class="form-check-input" /></td>
+                            <td><input type="checkbox" class="form-check-input" /></td>
+                        </tr>
+                        <tr>
+                            <td>Current power [MW]</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>Pdg trend [MW]</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+                        <!-- ... other rows omitted for brevity, adding a few representative ones -->
+                         <tr>
+                            <td>Activated power aFRR [MW]</td>
+                            <td>0</td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Manual overrides log</h5>
+            </div>
+            <div class="card-body">
+                 <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="search-wrapper">
+                         <i class="bi bi-search search-icon"></i>
+                         <input type="text" class="form-control search-input" placeholder="Search..." @bind="searchText" @bind:event="oninput" />
+                    </div>
+                     <button class="btn btn-outline-secondary">Refresh log</button>
+                </div>
+
+                <Grid TItem="ManualOverrideLog"
+                      Class="table table-hover table-striped"
+                      DataProvider="LogDataProvider"
+                      AllowSorting="true"
+                      AllowPaging="true"
+                      PageSize="5"
+                      Responsive="true">
+
+                    <GridColumn TItem="ManualOverrideLog" HeaderText="TIMESTAMP" PropertyName="Timestamp" SortKeySelector="item => item.Timestamp">
+                        @context.Timestamp.ToString("dd.MM.yyyy HH:mm")
+                    </GridColumn>
+
+                    <GridColumn TItem="ManualOverrideLog" HeaderText="USER" PropertyName="User">
+                        @context.User
+                    </GridColumn>
+
+                    <GridColumn TItem="ManualOverrideLog" HeaderText="AGGREGATION BLOCK" PropertyName="AggregationBlock">
+                        @context.AggregationBlock
+                    </GridColumn>
+
+                     <GridColumn TItem="ManualOverrideLog" HeaderText="LOGTYPE" PropertyName="LogType">
+                        @context.LogType
+                    </GridColumn>
+
+                    <GridColumn TItem="ManualOverrideLog" HeaderText="MESSAGE" PropertyName="Message">
+                        @if (string.IsNullOrEmpty(context.Message))
+                        {
+                            <span>(Empty)</span>
+                        }
+                        else
+                        {
+                             <button class="btn btn-sm btn-info text-white">Detail</button>
+                        }
+                    </GridColumn>
+
+                </Grid>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .search-wrapper {
+        position: relative;
+        max-width: 300px;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-slate-grey);
+    }
+    
+    .search-input {
+        padding-left: 35px;
+        border-color: var(--color-input-border);
+    }
+</style>
+
+@code {
+    private bool ab1Remote = true;
+    private bool ab2Remote = true;
+    private bool ab1External = false;
+    private bool ab2External = true;
+
+    private List<ManualOverrideLog> logs = new List<ManualOverrideLog>();
+    private string searchText = "";
+
+    protected override void OnInitialized()
+    {
+        // Mock Data
+        logs = new List<ManualOverrideLog>
+        {
+            new ManualOverrideLog { Id = 1, Timestamp = DateTime.Now.AddMinutes(-20), User = "admin admin", AggregationBlock = "", LogType = "User logged in", Message = "" },
+            new ManualOverrideLog { Id = 2, Timestamp = DateTime.Now.AddDays(-1).AddHours(4), User = "admin admin", AggregationBlock = "TEDOM AB1", LogType = "Operation plan has been manually updated", Message = "Details..." },
+            new ManualOverrideLog { Id = 3, Timestamp = DateTime.Now.AddDays(-1).AddHours(4), User = "admin admin", AggregationBlock = "TEDOM AB1", LogType = "Operation plan has been manually updated", Message = "Details..." },
+            new ManualOverrideLog { Id = 4, Timestamp = DateTime.Now.AddDays(-1).AddHours(4), User = "admin admin", AggregationBlock = "TEDOM AB1", LogType = "Operation plan has been manually updated", Message = "Details..." },
+            new ManualOverrideLog { Id = 5, Timestamp = DateTime.Now.AddDays(-2).AddHours(12), User = "admin admin", AggregationBlock = "", LogType = "User logged in", Message = "" },
+             new ManualOverrideLog { Id = 6, Timestamp = DateTime.Now.AddDays(-3), User = "user test", AggregationBlock = "TEDOM AB2", LogType = "System check", Message = "OK" },
+        };
+    }
+
+    private async Task<GridDataProviderResult<ManualOverrideLog>> LogDataProvider(GridDataProviderRequest<ManualOverrideLog> request)
+    {
+        var filteredData = logs;
+
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredData = filteredData.Where(x => x.User.Contains(searchText, StringComparison.OrdinalIgnoreCase) || 
+                                                  x.LogType.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        return await Task.FromResult(request.ApplyTo(filteredData));
+    }
+}

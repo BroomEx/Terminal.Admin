@@ -1,0 +1,28 @@
+:root {
+    /* 1. Primary Palette */
+    --color-deep-cerulean: #007CA5;
+    --color-bright-cyan: #00C2E0;
+    --color-action-pink: #FF476E;
+
+    /* 2. Backgrounds & Surfaces */
+    --color-pale-azure: #EBF5F9;
+    --color-pure-white: #FFFFFF;
+    --color-table-stripe: #F9FAFB;
+
+    /* 3. Typography & Data */
+    --color-charcoal: #2D3436;
+    --color-slate-grey: #95A5A6;
+    --color-link-teal: #008B9B;
+
+    /* 4. UI Elements & States */
+    --color-input-border: #DAE1E7;
+    --color-active-check: #5D6D7E;
+    --color-divider-line: #E0E0E0;
+    --color-pagination-blue: #D6EAF8;
+}
+
+body {
+    background-color: var(--color-pale-azure);
+    color: var(--color-charcoal);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}

@@ -1,10 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Terminal.Admin.Data.Models;
 using Terminal.Admin.Data.Models.Shared;
 
-namespace Terminal.Admin.Data.Models
+namespace Terminal.Admin.Database
 {
-    public class DatabaseContext : DbContext
+    public class TerminalDbContext : IdentityDbContext
     {
+        public TerminalDbContext(DbContextOptions<TerminalDbContext> options) : base(options)
+        {
+        }
+
         public virtual DbSet<PowerUnit> PowerUnits { get; set; }
         public virtual DbSet<AggregationBlock> AggregationBlocks { get; set; }
         public virtual DbSet<Address> Addresses { get; set; }
@@ -22,33 +28,30 @@ namespace Terminal.Admin.Data.Models
         public virtual DbSet<BaselineCalculation> BaselineCalculations { get; set; }
         public virtual DbSet<OperationPlanSlot> OperationPlanSlots { get; set; }
         public virtual DbSet<SupportService> SupportService { get; set; }
-        public DatabaseContext(DbContextOptions options) : base(options)
-        {
-        }
 
-        protected override void OnModelCreating(ModelBuilder modelBuiler)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuiler.Entity<InstructionCall>().OwnsMany(
+            builder.Entity<InstructionCall>().OwnsMany(
                 InstructionCall => InstructionCall.ActivePowerUnits,
                 ownedNavigationBuilder =>
                 {
                     ownedNavigationBuilder.ToJson();
                 });
 
-            modelBuiler.Entity<InstructionCall>().OwnsMany(
+            builder.Entity<InstructionCall>().OwnsMany(
                 InstructionCall => InstructionCall.ActiveAns,
                 ownedNavigationBuilder => {
                     ownedNavigationBuilder.ToJson();
                 });
 
-            modelBuiler.Entity<OperationPlanSlot>().OwnsMany(
+            builder.Entity<OperationPlanSlot>().OwnsMany(
                 OperationPlanSlot => OperationPlanSlot.PowerUnitsActivity,
                 ownedNavigationBuilder =>
                 {
                     ownedNavigationBuilder.ToJson();
                 });
 
-            base.OnModelCreating(modelBuiler);
+            base.OnModelCreating(builder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -70,11 +73,6 @@ namespace Terminal.Admin.Data.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.LogTo(x =>
-            //{
-            //    Debug.WriteLine(x);
-            //});
-
             base.OnConfiguring(optionsBuilder);
         }
     }

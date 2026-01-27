@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Orgrez.CepsTerminal.Shared.Extensions;
 using Terminal.Admin.Data.Models.Shared;
 
 namespace Terminal.Admin.Data.Models

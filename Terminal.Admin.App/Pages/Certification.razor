@@ -38,15 +38,15 @@
             <div class="row mb-4">
                 <div class="col-md-4">
                     <label class="form-label field-label">PDG (MW)</label>
-                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsBasicFieldsEnabled)" />
+                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsBasicFieldsEnabled)" value="@Pdg" @oninput="OnPdgChanged" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label field-label">ActivationPower</label>
-                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsBasicFieldsEnabled)" />
+                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsBasicFieldsEnabled)" value="@ActivationPower" @oninput="OnActivationPowerChanged" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label field-label">Trend</label>
-                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsTrendEnabled)" />
+                    <input type="text" class="form-control custom-field" placeholder="0.00" disabled="@(!IsTrendEnabled)" value="@Trend" @oninput="OnTrendChanged" />
                 </div>
             </div>
 
@@ -137,6 +137,7 @@
     private List<string> blocks = new();
     
     private string _selectedBlock = "Select";
+    private string _selectedPps = "Select";
     private string SelectedBlock
     {
         get => _selectedBlock;
@@ -145,12 +146,11 @@
             if (_selectedBlock != value)
             {
                 _selectedBlock = value;
-                StateHasChanged();
+                ResetFieldsIfDisabled();
             }
         }
     }
 
-    private string _selectedPps = "Select";
     private string SelectedPps
     {
         get => _selectedPps;
@@ -159,10 +159,14 @@
             if (_selectedPps != value)
             {
                 _selectedPps = value;
-                StateHasChanged();
+                ResetFieldsIfDisabled();
             }
         }
     }
+    
+    private string Pdg { get; set; } = string.Empty;
+    private string ActivationPower { get; set; } = string.Empty;
+    private string Trend { get; set; } = string.Empty;
 
     private bool IsBasicFieldsEnabled => 
         !string.IsNullOrEmpty(SelectedBlock) && SelectedBlock != "Select" &&
@@ -170,6 +174,24 @@
 
     private bool IsTrendEnabled => 
         IsBasicFieldsEnabled && (SelectedPps == "aFRR+" || SelectedPps == "aFRR-");
+
+    private void ResetFieldsIfDisabled()
+    {
+        if (!IsBasicFieldsEnabled)
+        {
+            Pdg = string.Empty;
+            ActivationPower = string.Empty;
+        }
+
+        if (!IsTrendEnabled)
+        {
+            Trend = string.Empty;
+        }
+    }
+
+    private void OnPdgChanged(ChangeEventArgs e) => Pdg = e.Value?.ToString() ?? string.Empty;
+    private void OnActivationPowerChanged(ChangeEventArgs e) => ActivationPower = e.Value?.ToString() ?? string.Empty;
+    private void OnTrendChanged(ChangeEventArgs e) => Trend = e.Value?.ToString() ?? string.Empty;
 
     private Modal instructionsModal = default!;
     private List<Instruction> instructions = new();

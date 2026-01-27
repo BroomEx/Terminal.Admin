@@ -1,0 +1,143 @@
+@page "/settings/users"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<IdentityUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+
+<PageTitle>Users</PageTitle>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1>Users</h1>
+    <a href="settings" class="btn btn-outline-secondary">Back to Settings</a>
+</div>
+
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>
+                        @if (userRoles.ContainsKey(user.Id))
+                        {
+                            @string.Join(", ", userRoles[user.Id])
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ManageRoles(user)">Manage Roles</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (selectedUser != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Roles for @selectedUser.Email</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    @foreach (var role in allRoles)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   checked="@(role.Name != null && selectedUserRoles.Contains(role.Name))" 
+                                   @onchange="@(e => ToggleRole(role.Name, e.Value))" 
+                                   id="role_@role.Id">
+                            <label class="form-check-label" for="role_@role.Id">
+                                @role.Name
+                            </label>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<IdentityUser>? users;
+    private Dictionary<string, IList<string>> userRoles = new();
+    private List<IdentityRole> allRoles = new();
+    
+    private IdentityUser? selectedUser;
+    private List<string> selectedUserRoles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        users = await UserManager.Users.ToListAsync();
+        allRoles = await RoleManager.Roles.ToListAsync();
+        
+        userRoles.Clear();
+        foreach (var user in users)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            userRoles[user.Id] = roles;
+        }
+    }
+
+    private async Task ManageRoles(IdentityUser user)
+    {
+        selectedUser = user;
+        selectedUserRoles = (await UserManager.GetRolesAsync(user)).ToList();
+    }
+
+    private void CloseModal()
+    {
+        selectedUser = null;
+        selectedUserRoles.Clear();
+    }
+
+    private async Task ToggleRole(string? roleName, object? isChecked)
+    {
+        if (selectedUser == null || roleName == null) return;
+
+        bool checkedState = (bool)(isChecked ?? false);
+
+        if (checkedState)
+        {
+            if (!selectedUserRoles.Contains(roleName))
+            {
+                await UserManager.AddToRoleAsync(selectedUser, roleName);
+                selectedUserRoles.Add(roleName);
+            }
+        }
+        else
+        {
+            if (selectedUserRoles.Contains(roleName))
+            {
+                await UserManager.RemoveFromRoleAsync(selectedUser, roleName);
+                selectedUserRoles.Remove(roleName);
+            }
+        }
+        
+        // Refresh the list view
+        userRoles[selectedUser.Id] = await UserManager.GetRolesAsync(selectedUser);
+    }
+}

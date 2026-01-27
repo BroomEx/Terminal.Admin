@@ -1,0 +1,86 @@
+@page "/settings/roles"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject RoleManager<IdentityRole> RoleManager
+
+<PageTitle>Roles</PageTitle>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1>Roles</h1>
+    <a href="settings" class="btn btn-outline-secondary">Back to Settings</a>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="New Role Name" @bind="newRoleName" />
+            <button class="btn btn-success" @onclick="CreateRole">Create Role</button>
+        </div>
+    </div>
+</div>
+
+@if (roles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Id</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in roles)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    <td><small class="text-muted">@role.Id</small></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteRole(role)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<IdentityRole>? roles;
+    private string? newRoleName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        roles = await RoleManager.Roles.ToListAsync();
+    }
+
+    private async Task CreateRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRoleName))
+        {
+            var result = await RoleManager.CreateAsync(new IdentityRole(newRoleName));
+            if (result.Succeeded)
+            {
+                newRoleName = string.Empty;
+                await LoadRoles();
+            }
+        }
+    }
+
+    private async Task DeleteRole(IdentityRole role)
+    {
+        var result = await RoleManager.DeleteAsync(role);
+        if (result.Succeeded)
+        {
+            await LoadRoles();
+        }
+    }
+}

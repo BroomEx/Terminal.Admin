@@ -89,4 +89,3 @@ C:\Users\dytry\source\repos\Terminal.Admin\Terminal.Admin.App\obj\Debug\net8.0\T
 C:\Users\dytry\source\repos\Terminal.Admin\Terminal.Admin.App\obj\Debug\net8.0\Terminal.Admin.App.genruntimeconfig.cache
 C:\Users\dytry\source\repos\Terminal.Admin\Terminal.Admin.App\obj\Debug\net8.0\ref\Terminal.Admin.App.dll
 C:\Users\dytry\source\repos\Terminal.Admin\Terminal.Admin.App\bin\Debug\net8.0\dotnet-tools.json
-C:\Users\dytry\source\repos\Terminal.Admin\Terminal.Admin.App\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

@@ -8,7 +8,10 @@
 
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h1>Users</h1>
-    <a href="settings" class="btn btn-outline-secondary">Back to Settings</a>
+    <div>
+        <button class="btn btn-success me-2" @onclick="OpenCreateUserModal">Create User</button>
+        <a href="settings" class="btn btn-outline-secondary">Back to Settings</a>
+    </div>
 </div>
 
 @if (users == null)
@@ -45,6 +48,40 @@ else
     </table>
 }
 
+@* Create User Modal *@
+@if (showCreateUserModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseCreateUserModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(creationError))
+                    {
+                        <div class="alert alert-danger">@creationError</div>
+                    }
+                    <div class="mb-3">
+                        <label for="newUserEmail" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="newUserEmail" @bind="newUserEmail" placeholder="name@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newUserPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="newUserPassword" @bind="newUserPassword">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseCreateUserModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateUserAsync">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Manage Roles Modal *@
 @if (selectedUser != null)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -81,8 +118,15 @@ else
     private Dictionary<string, IList<string>> userRoles = new();
     private List<IdentityRole> allRoles = new();
     
+    // Manage Roles State
     private IdentityUser? selectedUser;
     private List<string> selectedUserRoles = new();
+
+    // Create User State
+    private bool showCreateUserModal = false;
+    private string? newUserEmail;
+    private string? newUserPassword;
+    private string? creationError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,6 +146,58 @@ else
         }
     }
 
+    // Create User Methods
+    private void OpenCreateUserModal()
+    {
+        showCreateUserModal = true;
+        newUserEmail = string.Empty;
+        newUserPassword = string.Empty;
+        creationError = null;
+    }
+
+    private void CloseCreateUserModal()
+    {
+        showCreateUserModal = false;
+        creationError = null;
+    }
+
+    private async Task CreateUserAsync()
+    {
+        creationError = null;
+
+        if (string.IsNullOrWhiteSpace(newUserEmail) || string.IsNullOrWhiteSpace(newUserPassword))
+        {
+            creationError = "Email and Password are required.";
+            return;
+        }
+
+        var user = new IdentityUser { UserName = newUserEmail, Email = newUserEmail };
+        var result = await UserManager.CreateAsync(user, newUserPassword);
+
+        if (result.Succeeded)
+        {
+            // Specifically confirm email so the user can sign in if that setting is enabled (it is in Program.cs)
+            // options.SignIn.RequireConfirmedAccount = true
+            // In a real app, we might want to send an email, but for an admin tool, auto-confirming is often desired.
+            // However, the prompt didn't specify auto-confirm, but it's a safe bet for a "Create User" admin function.
+            // Let's check if the token generation is needed or if we can just set the flag.
+            // We can just set the property if we were using EF directly, but via UserManager we can use a token.
+            // Or simpler: just create it. If login fails, I might need to add confirmation logic.
+            // Given "options.SignIn.RequireConfirmedAccount = true" in Program.cs, I should probably confirm it.
+            
+            var token = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+            await UserManager.ConfirmEmailAsync(user, token);
+
+            await LoadData();
+            CloseCreateUserModal();
+        }
+        else
+        {
+            creationError = string.Join(" ", result.Errors.Select(e => e.Description));
+        }
+    }
+
+    // Manage Roles Methods
     private async Task ManageRoles(IdentityUser user)
     {
         selectedUser = user;

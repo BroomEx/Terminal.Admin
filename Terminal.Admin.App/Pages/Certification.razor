@@ -1,7 +1,9 @@
 @page "/certification"
 @using Terminal.Admin.App.Data
+@using BlazorBootstrap
 @inject PpsProvider PpsProvider
 @inject AggregationBlockProvider AggregationBlockProvider
+@implements IDisposable
 
 <PageTitle>Certification</PageTitle>
 
@@ -51,11 +53,8 @@
             </div>
 
             @* Visualization Area *@
-            <div class="visualization-area d-flex align-items-center justify-content-center bg-light rounded" style="height: 300px;">
-                <div class="text-center text-muted">
-                    <i class="bi bi-graph-up display-1"></i>
-                    <p class="mt-2">Chart Visualization Placeholder</p>
-                </div>
+            <div class="visualization-area bg-light rounded p-2" style="height: 300px;">
+                <LineChart @ref="lineChart" Width="100" Height="300" HeightUnit="Unit.Px" WidthUnit="Unit.Percentage" />
             </div>
         </div>
     </div>
@@ -196,6 +195,14 @@
     private Modal instructionsModal = default!;
     private List<Instruction> instructions = new();
 
+    // Chart related
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+    private System.Threading.Timer? timer;
+    private Random random = new Random();
+    private double lastValue = 50.0;
+
     protected override void OnInitialized()
     {
         ppsList = PpsProvider.GetPpsValues();
@@ -203,15 +210,111 @@
         
         // Generate 20 dummy instructions
         var baseTime = DateTime.Today.AddHours(8);
-        var random = new Random();
+        var randomInstr = new Random();
         for (int i = 0; i < 20; i++)
         {
             instructions.Add(new Instruction
             {
                 Time = baseTime.AddMinutes(i * 15).ToString("HH:mm"),
-                Power = Math.Round(random.NextDouble() * 100, 2)
+                Power = Math.Round(randomInstr.NextDouble() * 100, 2)
             });
         }
+
+        lineChartOptions = new LineChartOptions
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            Interaction = new Interaction { Mode = InteractionMode.Index },
+            Scales = new Scales
+            {
+                X = new ChartAxes { Title = new ChartAxesTitle { Text = "Time", Display = true } },
+                Y = new ChartAxes { Title = new ChartAxesTitle { Text = "Power [MW]", Display = true } }
+            }
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            chartData = await GenerateChartData();
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+
+            // Start timer for updates (every 1 second)
+            timer = new System.Threading.Timer(async _ => await UpdateChart(), null, 1000, 1000);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task<ChartData> GenerateChartData()
+    {
+        var labels = new List<string>();
+        for (int i = 0; i < 20; i++)
+        {
+            labels.Add(DateTime.Now.AddSeconds(-20 + i).ToString("HH:mm:ss"));
+        }
+
+        var datasets = new List<IChartDataset>();
+        var data = new List<double?>();
+
+        // Generate initial data
+        double current = lastValue;
+        for (int i = 0; i < 20; i++)
+        {
+            data.Add(current);
+            current += (random.NextDouble() - 0.5) * 10;
+            current = Math.Clamp(current, 10, 100);
+        }
+        lastValue = current;
+
+        var dataset = new LineChartDataset
+        {
+            Label = "Power (MW)",
+            Data = data,
+            BackgroundColor = "rgba(0, 124, 165, 0.2)", // semi-transparent deep cerulean
+            BorderColor = "#007CA5", // deep cerulean
+            BorderWidth = 2,
+            PointRadius = new List<double> { 0 },
+            Tension = 0.4,
+            Fill = true // Fill under the line
+        };
+        datasets.Add(dataset);
+
+        return new ChartData { Labels = labels, Datasets = datasets };
+    }
+
+    private async Task UpdateChart()
+    {
+        if (chartData == null || chartData.Datasets == null || !chartData.Datasets.Any()) return;
+
+        // Add new label and remove first one
+        chartData.Labels?.Add(DateTime.Now.ToString("HH:mm:ss"));
+        if (chartData.Labels?.Count > 20)
+        {
+            chartData.Labels.RemoveAt(0);
+        }
+
+        // Update datasets: Add new value and remove first one
+        foreach (var dataset in chartData.Datasets)
+        {
+            if (dataset is LineChartDataset lineDataset && lineDataset.Data != null)
+            {
+                var change = (random.NextDouble() - 0.5) * 10;
+                var newVal = Math.Clamp(lastValue + change, 10, 100);
+                lastValue = newVal;
+
+                lineDataset.Data.Add(newVal);
+                if (lineDataset.Data.Count > 20)
+                {
+                    lineDataset.Data.RemoveAt(0);
+                }
+            }
+        }
+
+        await InvokeAsync(async () =>
+        {
+            await lineChart.UpdateAsync(chartData, lineChartOptions);
+        });
     }
 
     private async Task ShowInstructions()
@@ -226,6 +329,11 @@
     private async Task HideModal()
     {
         await instructionsModal.HideAsync();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 
     public class Instruction

@@ -1,6 +1,5 @@
 Using launch settings from Terminal.Admin.App/Properties/launchSettings.json...
 Building...
-/app/Terminal.Admin.App/Shared/MonitoringChartPanel.razor(203,54): warning CS8604: Possible null reference argument for parameter 'key' in 'bool Dictionary<string, double>.ContainsKey(string key)'. [/app/Terminal.Admin.App/Terminal.Admin.App.csproj]
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://0.0.0.0:5183
 info: Microsoft.Hosting.Lifetime[0]
@@ -14,12 +13,12 @@ warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
 Unhandled exception. System.Threading.Tasks.TaskCanceledException: A task was canceled.
    at Microsoft.JSInterop.JSRuntime.InvokeAsync[TValue](Int64 targetInstanceId, String identifier, Object[] args)
    at Microsoft.JSInterop.JSRuntimeExtensions.InvokeVoidAsync(IJSRuntime jsRuntime, String identifier, Object[] args)
-   at BlazorBootstrap.LineChart.UpdateAsync(ChartData chartData, IChartOptions chartOptions)
-   at Terminal.Admin.App.Pages.Certification.<UpdateChart>b__42_0() in /app/Terminal.Admin.App/Pages/Certification.razor:line 316
+   at Terminal.Admin.App.Pages.Certification.<>c__DisplayClass39_0.<<UpdateChart>b__0>d.MoveNext() in /app/Terminal.Admin.App/Pages/Certification.razor:line 259
+--- End of stack trace from previous location ---
    at Microsoft.AspNetCore.Components.Rendering.RendererSynchronizationContext.<>c.<<InvokeAsync>b__10_0>d.MoveNext()
 --- End of stack trace from previous location ---
-   at Terminal.Admin.App.Pages.Certification.UpdateChart() in /app/Terminal.Admin.App/Pages/Certification.razor:line 314
-   at Terminal.Admin.App.Pages.Certification.<OnAfterRenderAsync>b__40_0(Object _) in /app/Terminal.Admin.App/Pages/Certification.razor:line 244
+   at Terminal.Admin.App.Pages.Certification.UpdateChart() in /app/Terminal.Admin.App/Pages/Certification.razor:line 257
+   at Terminal.Admin.App.Pages.Certification.<OnAfterRenderAsync>b__38_0(Object _) in /app/Terminal.Admin.App/Pages/Certification.razor:line 245
    at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__128_1(Object state)
    at System.Threading.QueueUserWorkItemCallback.Execute()
    at System.Threading.ThreadPoolWorkQueue.Dispatch()

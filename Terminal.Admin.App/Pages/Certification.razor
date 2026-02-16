@@ -3,6 +3,7 @@
 @using BlazorBootstrap
 @inject PpsProvider PpsProvider
 @inject AggregationBlockProvider AggregationBlockProvider
+@inject IJSRuntime JS
 @implements IDisposable
 
 <PageTitle>Certification</PageTitle>
@@ -54,7 +55,7 @@
 
             @* Visualization Area *@
             <div class="visualization-area bg-light rounded p-2" style="height: 300px;">
-                <LineChart @ref="lineChart" Width="100" Height="300" HeightUnit="Unit.Px" WidthUnit="Unit.Percentage" />
+                <canvas id="certificationChart" style="width:100%; height:100%;"></canvas>
             </div>
         </div>
     </div>
@@ -196,12 +197,10 @@
     private List<Instruction> instructions = new();
 
     // Chart related
-    private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = default!;
-    private ChartData chartData = default!;
     private System.Threading.Timer? timer;
     private Random random = new Random();
     private double lastValue = 50.0;
+    private const string ChartCanvasId = "certificationChart";
 
     protected override void OnInitialized()
     {
@@ -219,26 +218,28 @@
                 Power = Math.Round(randomInstr.NextDouble() * 100, 2)
             });
         }
-
-        lineChartOptions = new LineChartOptions
-        {
-            Responsive = true,
-            MaintainAspectRatio = false,
-            Interaction = new Interaction { Mode = InteractionMode.Index },
-            Scales = new Scales
-            {
-                X = new ChartAxes { Title = new ChartAxesTitle { Text = "Time", Display = true } },
-                Y = new ChartAxes { Title = new ChartAxesTitle { Text = "Power [MW]", Display = true } }
-            }
-        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            chartData = await GenerateChartData();
-            await lineChart.InitializeAsync(chartData, lineChartOptions);
+            // Initial data generation
+            var labels = new List<string>();
+            var data = new List<double>();
+
+            double current = lastValue;
+            for (int i = 0; i < 20; i++)
+            {
+                labels.Add(DateTime.Now.AddSeconds(-20 + i).ToString("HH:mm:ss"));
+                data.Add(current);
+                current += (random.NextDouble() - 0.5) * 10;
+                current = Math.Clamp(current, 10, 100);
+            }
+            lastValue = current;
+
+            // Initialize Chart via JS
+            await JS.InvokeVoidAsync("window.chartWrapper.init", ChartCanvasId, labels, data);
 
             // Start timer for updates (every 1 second)
             timer = new System.Threading.Timer(async _ => await UpdateChart(), null, 1000, 1000);
@@ -246,74 +247,16 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task<ChartData> GenerateChartData()
-    {
-        var labels = new List<string>();
-        for (int i = 0; i < 20; i++)
-        {
-            labels.Add(DateTime.Now.AddSeconds(-20 + i).ToString("HH:mm:ss"));
-        }
-
-        var datasets = new List<IChartDataset>();
-        var data = new List<double?>();
-
-        // Generate initial data
-        double current = lastValue;
-        for (int i = 0; i < 20; i++)
-        {
-            data.Add(current);
-            current += (random.NextDouble() - 0.5) * 10;
-            current = Math.Clamp(current, 10, 100);
-        }
-        lastValue = current;
-
-        var dataset = new LineChartDataset
-        {
-            Label = "Power (MW)",
-            Data = data,
-            BackgroundColor = "rgba(0, 124, 165, 0.2)", // semi-transparent deep cerulean
-            BorderColor = "#007CA5", // deep cerulean
-            BorderWidth = 2,
-            PointRadius = new List<double> { 0 },
-            Tension = 0.4,
-            Fill = true // Fill under the line
-        };
-        datasets.Add(dataset);
-
-        return new ChartData { Labels = labels, Datasets = datasets };
-    }
-
     private async Task UpdateChart()
     {
-        if (chartData == null || chartData.Datasets == null || !chartData.Datasets.Any()) return;
-
-        // Add new label and remove first one
-        chartData.Labels?.Add(DateTime.Now.ToString("HH:mm:ss"));
-        if (chartData.Labels?.Count > 20)
-        {
-            chartData.Labels.RemoveAt(0);
-        }
-
-        // Update datasets: Add new value and remove first one
-        foreach (var dataset in chartData.Datasets)
-        {
-            if (dataset is LineChartDataset lineDataset && lineDataset.Data != null)
-            {
-                var change = (random.NextDouble() - 0.5) * 10;
-                var newVal = Math.Clamp(lastValue + change, 10, 100);
-                lastValue = newVal;
-
-                lineDataset.Data.Add(newVal);
-                if (lineDataset.Data.Count > 20)
-                {
-                    lineDataset.Data.RemoveAt(0);
-                }
-            }
-        }
+        var label = DateTime.Now.ToString("HH:mm:ss");
+        var change = (random.NextDouble() - 0.5) * 10;
+        var newVal = Math.Clamp(lastValue + change, 10, 100);
+        lastValue = newVal;
 
         await InvokeAsync(async () =>
         {
-            await lineChart.UpdateAsync(chartData, lineChartOptions);
+            await JS.InvokeVoidAsync("window.chartWrapper.update", ChartCanvasId, label, newVal);
         });
     }
 
@@ -331,9 +274,17 @@
         await instructionsModal.HideAsync();
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
         timer?.Dispose();
+        try
+        {
+            await JS.InvokeVoidAsync("window.chartWrapper.dispose", ChartCanvasId);
+        }
+        catch
+        {
+            // Ignore JS errors on dispose (e.g. if page is already closed)
+        }
     }
 
     public class Instruction
